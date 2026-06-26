@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Milk Bath">
+<meta name="theme-color" content="#C8792A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.svg">
+<title>Milk Bath</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:     #F7F2E8;
+  --parchment: #EDE6D6;
+  --rule:      #D9CEBC;
+  --slate:     #3A3530;
+  --mid:       #7A716A;
+  --amber:     #C8792A;
+  --amber-lt:  #E8A455;
+  --amber-bg:  #FBF0E2;
+  --amber-dk:  #A3611E;
+  --green:     #4A8C5C;
+  --green-bg:  #EAF4EE;
+  --cool:      #4A7FA5;
+  --white:     #FDFAF5;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+html { height: 100%; }
+
+body {
+  background: var(--cream);
+  color: var(--slate);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overscroll-behavior: none;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  padding: calc(var(--safe-top) + 0.75rem) 1.25rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.app-title .logo {
+  width: 28px; height: 28px;
+  background: var(--amber);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+.app-title h1 {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--slate);
+  letter-spacing: 0.02em;
+}
+
+.app-title h1 span { color: var(--amber); }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--mid);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+}
+
+.tab-btn.active {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+
+/* ── CONTENT ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.scroll-area {
+  padding: 1.25rem 1rem calc(var(--safe-bot) + 5rem);
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 6px rgba(58,53,48,0.06);
+}
+
+.card-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* ── FORM FIELDS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+.full { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+label {
+  font-size: 0.73rem;
+  font-weight: 500;
+  color: var(--mid);
+}
+
+.inp-wrap { position: relative; display: flex; align-items: center; }
+
+input[type="number"], select {
+  width: 100%;
+  background: var(--cream);
+  border: 1.5px solid var(--rule);
+  border-radius: 9px;
+  padding: 0.65rem 2.5rem 0.65rem 0.8rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 1rem;
+  color: var(--slate);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  -moz-appearance: textfield; appearance: textfield;
+}
+
+input[type="number"]:focus, select:focus {
+  border-color: var(--amber);
+  background: var(--amber-bg);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+select { padding-right: 0.8rem; cursor: pointer; }
+
+.unit {
+  position: absolute; right: 0.7rem;
+  font-size: 0.68rem; color: var(--mid);
+  pointer-events: none;
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+}
+
+/* ── BUTTONS ── */
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--amber);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 600;
+  border: none; border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 0.25rem;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-primary:active { background: var(--amber-dk); transform: scale(0.98); }
+
+.btn-secondary {
+  padding: 0.55rem 1rem;
+  background: var(--cream);
+  color: var(--mid);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem; font-weight: 500;
+  border: 1.5px solid var(--rule); border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-secondary:active { background: var(--parchment); }
+
+/* ── RESULTS ── */
+.result-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(58,53,48,0.06);
+  margin-bottom: 1rem;
+  display: none;
+}
+.result-card.visible { display: block; }
+
+.result-hero {
+  background: var(--amber-bg);
+  border-bottom: 1px solid var(--rule);
+  padding: 1rem 1.25rem;
+}
+
+.result-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.4rem; font-weight: 500;
+  color: var(--amber); line-height: 1;
+}
+
+.result-sublabel {
+  font-size: 0.75rem; color: var(--mid);
+  margin-top: 0.3rem; line-height: 1.4;
+}
+
+.milestones {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem; padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ms {
+  background: var(--cream); border-radius: 9px;
+  padding: 0.55rem 0.4rem; text-align: center;
+}
+.ms-lbl { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); }
+.ms-temp { font-family: 'DM Mono', monospace; font-size: 1rem; color: var(--slate); font-weight: 500; margin: 0.1rem 0; }
+.ms-time { font-size: 0.68rem; color: var(--mid); }
+
+.chart-area { padding: 1rem 1.25rem 1.25rem; }
+.chart-lbl { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 0.6rem; }
+
+svg#curve { width: 100%; height: 160px; overflow: visible; }
+
+.curve-path {
+  fill: none; stroke: var(--amber); stroke-width: 2.5; stroke-linecap: round;
+  stroke-dasharray: 1000; stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.curve-fill { opacity: 0; transition: opacity 0.5s ease 0.8s; }
+.target-line { stroke: var(--cool); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: 0.6; }
+.axis-lbl { font-family: 'DM Mono', monospace; font-size: 10px; fill: var(--mid); }
+
+.calc-note {
+  font-size: 0.7rem; color: var(--mid); line-height: 1.55;
+  padding: 0.85rem 1.25rem 1rem;
+  border-top: 1px solid var(--rule);
+}
+.calc-note strong { color: var(--slate); font-weight: 500; }
+
+/* ── YOGURT TIMER ── */
+.yogurt-presets {
+  display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem;
+}
+
+.preset-btn {
+  padding: 0.4rem 0.75rem;
+  background: var(--cream); border: 1.5px solid var(--rule);
+  border-radius: 20px; font-size: 0.75rem; font-weight: 500;
+  color: var(--mid); cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.preset-btn.active, .preset-btn:active {
+  background: var(--amber-bg); border-color: var(--amber); color: var(--amber);
+}
+
+/* Timer display */
+.timer-display {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.timer-ring-wrap {
+  position: relative;
+  width: 180px; height: 180px;
+  margin: 0 auto 1rem;
+}
+
+.timer-ring-wrap svg { width: 180px; height: 180px; transform: rotate(-90deg); }
+
+.ring-bg { fill: none; stroke: var(--rule); stroke-width: 10; }
+.ring-progress {
+  fill: none; stroke: var(--amber); stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+.ring-progress.complete { stroke: var(--green); }
+
+.timer-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+.timer-digits {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.2rem; font-weight: 500;
+  color: var(--slate); line-height: 1;
+}
+
+.timer-phase {
+  font-size: 0.7rem; color: var(--mid);
+  margin-top: 0.3rem; letter-spacing: 0.05em;
+}
+
+.timer-controls {
+  display: flex; gap: 0.75rem; justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.timer-phases {
+  display: flex; gap: 0.5rem; margin: 0.85rem 0;
+}
+
+.phase-pip {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: var(--rule);
+  transition: background 0.3s;
+}
+.phase-pip.done { background: var(--amber-lt); }
+.phase-pip.active { background: var(--amber); }
+
+.phase-list { margin-top: 0.75rem; }
+.phase-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.8rem;
+}
+.phase-row:last-child { border-bottom: none; }
+.phase-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--rule); flex-shrink: 0;
+  transition: background 0.3s;
+}
+.phase-dot.done { background: var(--amber-lt); }
+.phase-dot.active { background: var(--amber); }
+.phase-name { flex: 1; color: var(--slate); font-weight: 500; }
+.phase-dur { color: var(--mid); font-family: 'DM Mono', monospace; font-size: 0.75rem; }
+.phase-status { font-size: 0.7rem; color: var(--mid); }
+.phase-status.done-txt { color: var(--green); }
+
+.complete-banner {
+  background: var(--green-bg);
+  border: 1px solid #B8DFC5;
+  border-radius: 11px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  margin-top: 0.5rem;
+  display: none;
+}
+.complete-banner.visible { display: block; }
+.complete-banner .big { font-size: 1.8rem; margin-bottom: 0.3rem; }
+.complete-banner p { font-size: 0.85rem; color: var(--green); font-weight: 500; }
+.complete-banner small { font-size: 0.75rem; color: var(--mid); }
+
+/* ── BOTTOM NAV (alternate layout for very small screens) ── */
+@media (max-width: 360px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .milestones { grid-template-columns: 1fr 1fr; }
+  .milestones .ms:last-child { grid-column: 1/-1; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-title">
+    <div class="logo">🫙</div>
+    <h1>Milk <span>Bath</span></h1>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('calc')">Temp Calculator</button>
+    <button class="tab-btn" onclick="switchTab('yogurt')">Yogurt Timer</button>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════
+     TAB 1: TEMPERATURE CALCULATOR
+═══════════════════════════════════════ -->
+<div id="tab-calc" class="tab-panel active">
+<div class="scroll-area">
+
+  <div class="card">
+    <p class="card-label">Bath &amp; Milk Setup</p>
+    <div class="grid-2">
+
+      <div class="field">
+        <label for="bath-temp">Bath temp</label>
+        <div class="inp-wrap">
+          <input type="number" id="bath-temp" value="180" min="70" max="212" inputmode="decimal">
+          <span class="unit">°F</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="milk-start">Milk starting temp</label>
+        <div class="inp-wrap">
+          <input type="number" id="milk-start" value="38" min="32" max="200" inputmode="decimal">
+          <span class="unit">°F</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="target-temp">Target milk temp</label>
+        <div class="inp-wrap">
+          <input type="number" id="target-temp" value="160" min="50" max="212" inputmode="decimal">
+          <span class="unit">°F</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="jar-size">Jar size</label>
+        <select id="jar-size">
+          <option value="0.5">½ pint (8 oz)</option>
+          <option value="1" selected>Pint (16 oz)</option>
+          <option value="1.5">1½ pint (24 oz)</option>
+          <option value="2">Quart (32 oz)</option>
+          <option value="4">Half-gallon (64 oz)</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="jar-count">Jars in bath</label>
+        <div class="inp-wrap">
+          <input type="number" id="jar-count" value="1" min="1" max="12" inputmode="numeric">
+          <span class="unit">jars</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="calculate()">Calculate Heat-Up Time</button>
+
+  <div class="result-card" id="results">
+    <div class="result-hero">
+      <div class="result-time" id="res-time">—</div>
+      <div class="result-sublabel" id="res-label">to reach target temperature</div>
+    </div>
+    <div class="milestones" id="milestones"></div>
+    <div class="chart-area">
+      <p class="chart-lbl">Temperature curve</p>
+      <svg id="curve" viewBox="0 0 480 140" preserveAspectRatio="none"></svg>
+    </div>
+    <p class="calc-note" id="calc-note"></p>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 2: YOGURT TIMER
+═══════════════════════════════════════ -->
+<div id="tab-yogurt" class="tab-panel">
+<div class="scroll-area">
+
+  <!-- Culture presets -->
+  <div class="card">
+    <p class="card-label">Culture Preset</p>
+    <div class="yogurt-presets" id="presets">
+      <button class="preset-btn active" onclick="setPreset(this, 'standard')">Standard (110°F)</button>
+      <button class="preset-btn" onclick="setPreset(this, 'greek')">Greek-style (112°F)</button>
+      <button class="preset-btn" onclick="setPreset(this, 'l-reuteri')">L. reuteri (100°F)</button>
+      <button class="preset-btn" onclick="setPreset(this, 'custom')">Custom</button>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label for="y-temp">Culture temp</label>
+        <div class="inp-wrap">
+          <input type="number" id="y-temp" value="110" min="80" max="130" inputmode="decimal">
+          <span class="unit">°F</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="y-hours">Ferment time</label>
+        <div class="inp-wrap">
+          <input type="number" id="y-hours" value="8" min="1" max="48" inputmode="numeric">
+          <span class="unit">hrs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timer card -->
+  <div class="card" id="timer-card">
+    <p class="card-label">Fermentation Timer</p>
+
+    <div class="timer-display">
+      <div class="timer-ring-wrap">
+        <svg viewBox="0 0 180 180">
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#C8792A"/>
+              <stop offset="100%" stop-color="#E8A455"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="90" cy="90" r="78"/>
+          <circle class="ring-progress" id="ring" cx="90" cy="90" r="78"
+            stroke="url(#ringGrad)"
+            stroke-dasharray="490"
+            stroke-dashoffset="490"/>
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-digits" id="t-digits">0:00:00</div>
+          <div class="timer-phase" id="t-phase">ready</div>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <button class="btn-secondary" id="btn-reset" onclick="timerReset()">Reset</button>
+        <button class="btn-primary" id="btn-start" style="width:140px" onclick="timerToggle()">Start Timer</button>
+      </div>
+    </div>
+
+    <!-- Phase progress pips -->
+    <div class="timer-phases" id="phase-pips"></div>
+
+    <!-- Phase breakdown -->
+    <div class="phase-list" id="phase-list"></div>
+  </div>
+
+  <!-- Completion banner -->
+  <div class="complete-banner" id="done-banner">
+    <div class="big">🎉</div>
+    <p>Fermentation complete!</p>
+    <small>Move jars to the fridge to stop culturing.</small>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ─────────────────────────────────────────
+// CALCULATOR PHYSICS
+// ─────────────────────────────────────────
+const JAR_DATA = {
+  '0.5': { r: 0.038, h: 0.076,  massKg: 0.240 },
+  '1':   { r: 0.038, h: 0.127,  massKg: 0.475 },
+  '1.5': { r: 0.041, h: 0.152,  massKg: 0.710 },
+  '2':   { r: 0.041, h: 0.190,  massKg: 0.950 },
+  '4':   { r: 0.051, h: 0.254,  massKg: 1.900 },
+};
+const C_MILK = 3900, H_BASE = 600;
+
+function surfaceArea(r, h) { return 2 * Math.PI * r * h + Math.PI * r * r; }
+
+function tauMinutes(jarSize, jarCount) {
+  const j = JAR_DATA[jarSize];
+  const A = surfaceArea(j.r, j.h);
+  const crowding = Math.max(0.65, 1 - 0.08 * (jarCount - 1));
+  const tau_s = (j.massKg * C_MILK) / (H_BASE * crowding * A);
+  return tau_s / 60;
+}
+
+function timeToTemp(T_bath, T_start, T_target, tau) {
+  const ratio = (T_target - T_bath) / (T_start - T_bath);
+  if (ratio <= 0 || ratio >= 1) return null;
+  return -tau * Math.log(ratio);
+}
+
+function tempAtTime(T_bath, T_start, tau, t) {
+  return T_bath + (T_start - T_bath) * Math.exp(-t / tau);
+}
+
+function fmtTime(mins) {
+  if (mins < 1) return Math.round(mins * 60) + 's';
+  if (mins < 60) return Math.round(mins) + ' min';
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return m > 0 ? h + 'h ' + m + 'm' : h + 'h';
+}
+
+function calculate() {
+  const T_bath   = parseFloat(document.getElementById('bath-temp').value);
+  const T_start  = parseFloat(document.getElementById('milk-start').value);
+  const T_target = parseFloat(document.getElementById('target-temp').value);
+  const jarSize  = document.getElementById('jar-size').value;
+  const jarCount = parseInt(document.getElementById('jar-count').value) || 1;
+
+  if (isNaN(T_bath) || isNaN(T_start) || isNaN(T_target)) { alert('Please fill in all temperatures.'); return; }
+  if (T_target <= T_start) { alert('Target must be higher than starting milk temp.'); return; }
+
+  let T_bath_used = T_bath, bathAdjusted = false;
+  if (T_target >= T_bath) { T_bath_used = T_target + 1; bathAdjusted = true; }
+  if (T_start >= T_bath_used) { alert('Milk is already at or above the target temperature.'); return; }
+
+  const tau = tauMinutes(jarSize, jarCount);
+  const totalMins = timeToTemp(T_bath_used, T_start, T_target, tau);
+  if (totalMins === null) { alert('Invalid temperature configuration.'); return; }
+
+  document.getElementById('res-time').textContent = fmtTime(totalMins);
+  document.getElementById('res-label').textContent = bathAdjusted
+    ? 'to reach ' + T_target + '\u00b0F (bath auto-set to ' + T_bath_used + '\u00b0F)'
+    : 'to reach target temperature';
+
+  const range = T_target - T_start;
+  const mData = [
+    { lbl: '25%', temp: T_start + range * 0.25 },
+    { lbl: '75%', temp: T_start + range * 0.75 },
+    { lbl: 'Target', temp: T_target },
+  ];
+
+  document.getElementById('milestones').innerHTML = mData.map(function(m) {
+    const t = timeToTemp(T_bath_used, T_start, m.temp, tau);
+    return '<div class="ms"><div class="ms-lbl">' + m.lbl + '</div>'
+      + '<div class="ms-temp">' + Math.round(m.temp) + '\u00b0F</div>'
+      + '<div class="ms-time">' + fmtTime(t) + '</div></div>';
+  }).join('');
+
+  const h_eff = Math.round(H_BASE * Math.max(0.65, 1 - 0.08 * (jarCount - 1)));
+  const bathNote = bathAdjusted ? ' Bath auto-set to ' + T_bath_used + '\u00b0F (1\u00b0 above target).' : '';
+  document.getElementById('calc-note').innerHTML =
+    '<strong>Physics:</strong> Newton\u2019s Law of Cooling, h\u2248' + h_eff + ' W/m\u00b2\u00b7K. '
+    + 'Models the <strong>center of the jar</strong> \u2014 the last point to heat. '
+    + 'Expect \u00b115% real-world variance.' + bathNote;
+
+  drawCurve(T_bath_used, T_start, T_target, tau, totalMins);
+
+  const card = document.getElementById('results');
+  card.classList.add('visible');
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+// ─────────────────────────────────────────
+// SVG CURVE
+// ─────────────────────────────────────────
+function drawCurve(T_bath, T_start, T_target, tau, totalMins) {
+  const svg = document.getElementById('curve');
+  svg.innerHTML = '';
+  const W = 480, H = 140;
+  const PAD = { top: 10, right: 18, bottom: 26, left: 36 };
+  const pW = W - PAD.left - PAD.right, pH = H - PAD.top - PAD.bottom;
+  const maxT = totalMins * 1.15;
+  const tMin = T_start - (T_target - T_start) * 0.04;
+  const tMax = Math.min(T_bath + 4, T_target + (T_target - T_start) * 0.1);
+  const xS = t => PAD.left + (t / maxT) * pW;
+  const yS = t => PAD.top + pH - ((t - tMin) / (tMax - tMin)) * pH;
+  const ns = 'http://www.w3.org/2000/svg';
+  const steps = 100;
+  const pts = Array.from({length: steps + 1}, (_, i) => {
+    const t = (i / steps) * maxT;
+    return [xS(t), yS(tempAtTime(T_bath, T_start, tau, t))];
+  });
+
+  // defs / gradient
+  const defs = document.createElementNS(ns, 'defs');
+  const grad = document.createElementNS(ns, 'linearGradient');
+  grad.id = 'cg'; grad.setAttribute('x1','0'); grad.setAttribute('y1','0');
+  grad.setAttribute('x2','0'); grad.setAttribute('y2','1');
+  const gs = [[0,'0.25'],[1,'0.03']];
+  gs.forEach(([o,op]) => { const s = document.createElementNS(ns,'stop'); s.setAttribute('offset',o*100+'%'); s.setAttribute('stop-color','#E8A455'); s.setAttribute('stop-opacity',op); grad.appendChild(s); });
+  defs.appendChild(grad); svg.appendChild(defs);
+
+  // grid
+  [T_start, T_target].forEach(tmp => {
+    const l = document.createElementNS(ns,'line');
+    l.setAttribute('x1',PAD.left); l.setAttribute('x2',PAD.left+pW);
+    l.setAttribute('y1',yS(tmp)); l.setAttribute('y2',yS(tmp));
+    l.setAttribute('stroke','#D9CEBC'); l.setAttribute('stroke-width','1'); svg.appendChild(l);
+  });
+
+  // target dashed
+  const tl = document.createElementNS(ns,'line');
+  tl.setAttribute('x1',PAD.left); tl.setAttribute('x2',PAD.left+pW);
+  tl.setAttribute('y1',yS(T_target)); tl.setAttribute('y2',yS(T_target));
+  tl.setAttribute('class','target-line'); svg.appendChild(tl);
+
+  // vertical at target time
+  const vl = document.createElementNS(ns,'line');
+  vl.setAttribute('x1',xS(totalMins)); vl.setAttribute('x2',xS(totalMins));
+  vl.setAttribute('y1',PAD.top); vl.setAttribute('y2',PAD.top+pH);
+  vl.setAttribute('stroke','#C8792A'); vl.setAttribute('stroke-width','1');
+  vl.setAttribute('stroke-dasharray','4 3'); vl.setAttribute('opacity','0.45'); svg.appendChild(vl);
+
+  // fill path
+  const fillD = 'M'+pts[0][0]+','+yS(T_start)+' '+pts.map(p=>'L'+p[0]+','+p[1]).join(' ')+' L'+pts[pts.length-1][0]+','+yS(T_start)+' Z';
+  const fill = document.createElementNS(ns,'path');
+  fill.setAttribute('d',fillD); fill.setAttribute('fill','url(#cg)'); fill.setAttribute('class','curve-fill'); fill.id='curve-fill'; svg.appendChild(fill);
+
+  // curve
+  const pathD = 'M'+pts[0][0]+','+pts[0][1]+' '+pts.slice(1).map(p=>'L'+p[0]+','+p[1]).join(' ');
+  const totalLen = pts.reduce((acc,p,i)=>{ if(i===0)return 0; const dx=p[0]-pts[i-1][0],dy=p[1]-pts[i-1][1]; return acc+Math.sqrt(dx*dx+dy*dy); },0);
+  const path = document.createElementNS(ns,'path');
+  path.setAttribute('d',pathD); path.setAttribute('class','curve-path');
+  path.style.strokeDasharray = totalLen; path.style.strokeDashoffset = totalLen; svg.appendChild(path);
+
+  // labels
+  [[T_start,'start'],[T_target,'target']].forEach(([tmp]) => {
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('x',PAD.left-4); t.setAttribute('y',yS(tmp)+3.5);
+    t.setAttribute('text-anchor','end'); t.setAttribute('class','axis-lbl');
+    t.textContent = Math.round(tmp)+'\u00b0'; svg.appendChild(t);
+  });
+  [[0,'0'],[totalMins,fmtTime(totalMins)]].forEach(([t,lbl]) => {
+    const el = document.createElementNS(ns,'text');
+    el.setAttribute('x',xS(t)); el.setAttribute('y',PAD.top+pH+16);
+    el.setAttribute('text-anchor',t===0?'start':'middle'); el.setAttribute('class','axis-lbl');
+    el.textContent=lbl; svg.appendChild(el);
+  });
+
+  requestAnimationFrame(() => {
+    path.style.strokeDashoffset = '0';
+    setTimeout(() => { const cf = document.getElementById('curve-fill'); if(cf) cf.style.opacity='1'; }, 600);
+  });
+}
+
+// ─────────────────────────────────────────
+// YOGURT TIMER
+// ─────────────────────────────────────────
+const PRESETS = {
+  standard:  { temp: 110, hours: 8,  label: 'Standard' },
+  greek:     { temp: 112, hours: 7,  label: 'Greek-style' },
+  'l-reuteri': { temp: 100, hours: 36, label: 'L. reuteri' },
+  custom:    { temp: null, hours: null, label: 'Custom' },
+};
+
+let timerInterval = null;
+let timerEnd = null;
+let timerTotal = 0;
+let timerRunning = false;
+let timerPhases = [];
+let notifPermission = false;
+
+function setPreset(btn, key) {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const p = PRESETS[key];
+  if (p.temp !== null) document.getElementById('y-temp').value = p.temp;
+  if (p.hours !== null) document.getElementById('y-hours').value = p.hours;
+}
+
+function buildPhases(totalHours) {
+  // Phase model: heat-up (use calc if available, else ~30min), ferment, done
+  const fermentMs = totalHours * 3600000;
+  return [
+    { name: 'Fermentation', ms: fermentMs },
+  ];
+}
+
+function timerToggle() {
+  if (timerRunning) {
+    timerPause();
+  } else {
+    timerStart();
+  }
+}
+
+function timerStart() {
+  const hours = parseFloat(document.getElementById('y-hours').value);
+  if (isNaN(hours) || hours <= 0) { alert('Enter a valid fermentation time.'); return; }
+
+  if (!timerEnd) {
+    timerTotal = hours * 3600000;
+    timerEnd = Date.now() + timerTotal;
+    buildPhaseUI(hours);
+  }
+
+  timerRunning = true;
+  document.getElementById('btn-start').textContent = 'Pause';
+  document.getElementById('done-banner').classList.remove('visible');
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  timerInterval = setInterval(timerTick, 500);
+  timerTick();
+}
+
+function timerPause() {
+  timerRunning = false;
+  clearInterval(timerInterval);
+  timerInterval = null;
+  // Save remaining time
+  timerTotal = timerEnd - Date.now();
+  timerEnd = null;
+  document.getElementById('btn-start').textContent = 'Resume';
+}
+
+function timerReset() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerRunning = false;
+  timerEnd = null;
+  timerTotal = 0;
+  document.getElementById('btn-start').textContent = 'Start Timer';
+  document.getElementById('t-digits').textContent = '0:00:00';
+  document.getElementById('t-phase').textContent = 'ready';
+  document.getElementById('ring').style.strokeDashoffset = '490';
+  document.getElementById('ring').classList.remove('complete');
+  document.getElementById('done-banner').classList.remove('visible');
+  buildPhaseUI(parseFloat(document.getElementById('y-hours').value) || 8);
+}
+
+function timerTick() {
+  const remaining = timerEnd ? timerEnd - Date.now() : timerTotal;
+
+  if (remaining <= 0) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timerRunning = false;
+    document.getElementById('t-digits').textContent = '0:00:00';
+    document.getElementById('t-phase').textContent = 'complete';
+    document.getElementById('ring').style.strokeDashoffset = '0';
+    document.getElementById('ring').classList.add('complete');
+    document.getElementById('btn-start').textContent = 'Start Timer';
+    document.getElementById('done-banner').classList.add('visible');
+    timerEnd = null; timerTotal = 0;
+    sendNotification();
+    updatePhaseUI(0, 0);
+    return;
+  }
+
+  const totalSec = timerTotal / 1000 || (parseFloat(document.getElementById('y-hours').value) * 3600);
+  const remSec = remaining / 1000;
+  const elapsed = totalSec - remSec;
+
+  // Format time
+  const h = Math.floor(remSec / 3600);
+  const m = Math.floor((remSec % 3600) / 60);
+  const s = Math.floor(remSec % 60);
+  document.getElementById('t-digits').textContent =
+    h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+
+  // Ring: circumference = 2π×78 ≈ 490
+  const pct = elapsed / totalSec;
+  const offset = 490 * (1 - pct);
+  document.getElementById('ring').style.strokeDashoffset = offset;
+
+  // Phase label
+  const pctLeft = remSec / totalSec;
+  let phase = 'fermenting';
+  if (pctLeft < 0.1) phase = 'almost done';
+  document.getElementById('t-phase').textContent = phase;
+
+  updatePhaseUI(elapsed, totalSec);
+}
+
+function buildPhaseUI(hours) {
+  const fermentSec = hours * 3600;
+  const segments = [
+    { name: 'Early ferment', sec: fermentSec * 0.4, tip: 'Culture activating' },
+    { name: 'Active culture', sec: fermentSec * 0.4, tip: 'Peak activity' },
+    { name: 'Setting', sec: fermentSec * 0.2, tip: 'Texture developing' },
+  ];
+
+  const circum = 490;
+  const pipsEl = document.getElementById('phase-pips');
+  const listEl = document.getElementById('phase-list');
+
+  pipsEl.innerHTML = segments.map((s, i) =>
+    '<div class="phase-pip" id="pip-'+i+'"></div>'
+  ).join('');
+
+  listEl.innerHTML = segments.map((s, i) =>
+    '<div class="phase-row">'
+    + '<div class="phase-dot" id="dot-'+i+'"></div>'
+    + '<div class="phase-name">' + s.name + '</div>'
+    + '<div class="phase-dur">' + fmtHMS(s.sec) + '</div>'
+    + '<div class="phase-status" id="pstat-'+i+'">' + s.tip + '</div>'
+    + '</div>'
+  ).join('');
+
+  window._timerSegments = segments;
+}
+
+function updatePhaseUI(elapsedSec, totalSec) {
+  const segs = window._timerSegments;
+  if (!segs) return;
+  let accum = 0;
+  segs.forEach((s, i) => {
+    const segStart = accum / totalSec;
+    const segEnd = (accum + s.sec) / totalSec;
+    const elPct = elapsedSec / totalSec;
+    const pip = document.getElementById('pip-' + i);
+    const dot = document.getElementById('dot-' + i);
+    const stat = document.getElementById('pstat-' + i);
+    if (!pip) return;
+    if (elPct >= segEnd) {
+      pip.classList.add('done'); pip.classList.remove('active');
+      dot.classList.add('done'); dot.classList.remove('active');
+      if (stat) { stat.textContent = 'Done'; stat.className = 'phase-status done-txt'; }
+    } else if (elPct >= segStart) {
+      pip.classList.add('active'); pip.classList.remove('done');
+      dot.classList.add('active'); dot.classList.remove('done');
+      const rem = (accum + s.sec) - elapsedSec;
+      if (stat) { stat.textContent = fmtHMS(rem) + ' left'; stat.className = 'phase-status'; }
+    } else {
+      pip.classList.remove('done','active');
+      dot.classList.remove('done','active');
+      if (stat) { stat.textContent = s.tip; stat.className = 'phase-status'; }
+    }
+    accum += s.sec;
+  });
+}
+
+function fmtHMS(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  if (h > 0) return h + 'h ' + m + 'm';
+  return m + 'm';
+}
+
+function sendNotification() {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('Milk Bath', {
+      body: 'Your yogurt fermentation is complete! Move jars to the fridge.',
+      icon: 'icon-192.svg',
+    });
+  }
+}
+
+// Init phase UI on load
+window.addEventListener('DOMContentLoaded', () => {
+  buildPhaseUI(8);
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const activeTab = document.querySelector('.tab-panel.active');
+    if (activeTab && activeTab.id === 'tab-calc') calculate();
+  }
+});
+</script>
+</body>
+</html>
